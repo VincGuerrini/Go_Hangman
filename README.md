@@ -1,9 +1,11 @@
-# **The HangMan**
+# **The HangMan** 
 
 **Hangman** is a word-guessing game where the goal is to guess a secret word, one letter at a time.
 Each time the player guesses a wrong letter, a part of the hangman drawing is added.
 
 The player **wins** if they guess all the letters before the drawing is complete, and **loses** if the hangman is fully drawn before the word is guessed.
+## **Language**
+[![Go](https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://golang.org)
 
 ## **How to Start**
 

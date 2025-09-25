@@ -79,11 +79,72 @@ func main() {
 	var Word = []rune(CreatWord())
 	var WordTry []rune
 	Try := 6
-	StartGame(Word, WordTry, Try)
+	fmt.Println("\033[38;2;231;222;121m", `
+		██╗  ██╗ █████╗ ███╗   ██╗ ██████╗ ███╗   ███╗ █████╗ ███╗   ██╗
+		██║  ██║██╔══██╗████╗  ██║██╔════╝ ████╗ ████║██╔══██╗████╗  ██║
+		███████║███████║██╔██╗ ██║██║  ███╗██╔████╔██║███████║██╔██╗ ██║
+		██╔══██║██╔══██║██║╚██╗██║██║   ██║██║╚██╔╝██║██╔══██║██║╚██╗██║
+		██║  ██║██║  ██║██║ ╚████║╚██████╔╝██║ ╚═╝ ██║██║  ██║██║ ╚████║
+		╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝`, "\033[0m")
+	Menu(&Word, WordTry, Try)
+}
+
+func Menu(Word *[]rune, WordTry []rune, Try int) {
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Println("1 - Jouer")
+		fmt.Println("2 - Quitter")
+		fmt.Print("Choisis une option : ")
+
+		Input, _ := reader.ReadString('\n')
+		Choice := strings.TrimSpace(Input)
+
+		switch Choice {
+		case "1":
+			fmt.Println("Lets go Play !")
+			*Word = []rune(CreatWord())
+			StartGame(*Word, WordTry, Try)
+		case "2":
+			fmt.Println("Bye bye !!")
+			os.Exit(0)
+		default:
+			ClearScreen()
+			fmt.Println("Ton choix n'est pas correct retry !")
+		}
+	}
 }
 
 func StartGame(Word []rune, WordTry []rune, Try int) {
 	Game(Word, &WordTry, &Try)
+}
+
+func Game(Word []rune, WordTry *[]rune, Try *int) {
+	GameWord := []rune{'_', '_', '_', '_', '_'}
+	for !GameOver(Word, GameWord, Try) {
+		ClearScreen()
+		fmt.Println("\033[38;2;231;222;121m", `
+		██╗  ██╗ █████╗ ███╗   ██╗ ██████╗ ███╗   ███╗ █████╗ ███╗   ██╗
+		██║  ██║██╔══██╗████╗  ██║██╔════╝ ████╗ ████║██╔══██╗████╗  ██║
+		███████║███████║██╔██╗ ██║██║  ███╗██╔████╔██║███████║██╔██╗ ██║
+		██╔══██║██╔══██║██║╚██╗██║██║   ██║██║╚██╔╝██║██╔══██║██║╚██╗██║
+		██║  ██║██║  ██║██║ ╚████║╚██████╔╝██║ ╚═╝ ██║██║  ██║██║ ╚████║
+		╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝`, "\033[0m")
+		PrintHangman(Try)
+		fmt.Println(strings.ToTitle(string(GameWord)))
+		fmt.Println("Vous avez deja marquer : ", string(*WordTry))
+		TapeLetter := ScanKeyboard(*WordTry)
+		*WordTry = append(*WordTry, TapeLetter)
+		if VerifLetter(TapeLetter, Word) {
+			for i := 0; i <= 4; i++ {
+				if TapeLetter == (Word)[i] {
+					GameWord[i] = TapeLetter
+				}
+			}
+		} else {
+			(*Try)--
+		}
+	}
 }
 
 func CreatWord() string {
@@ -102,38 +163,10 @@ func PrintHangman(Try *int) {
 	fmt.Println(Hangman[6-*Try])
 }
 
-func Game(Word []rune, WordTry *[]rune, Try *int) {
-	GameWord := []rune{'_', '_', '_', '_', '_'}
-	for !GameOver(Word, GameWord, Try) {
-		ClearScreen()
-		fmt.Println(`
-		██╗  ██╗ █████╗ ███╗   ██╗ ██████╗ ███╗   ███╗ █████╗ ███╗   ██╗
-		██║  ██║██╔══██╗████╗  ██║██╔════╝ ████╗ ████║██╔══██╗████╗  ██║
-		███████║███████║██╔██╗ ██║██║  ███╗██╔████╔██║███████║██╔██╗ ██║
-		██╔══██║██╔══██║██║╚██╗██║██║   ██║██║╚██╔╝██║██╔══██║██║╚██╗██║
-		██║  ██║██║  ██║██║ ╚████║╚██████╔╝██║ ╚═╝ ██║██║  ██║██║ ╚████║
-		╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝`)
-		PrintHangman(Try)
-		fmt.Println(string(GameWord))
-		fmt.Println("Vous avez deja marquer : ", string(*WordTry))
-		TapeLetter := ScanKeyboard(*WordTry)
-		*WordTry = append(*WordTry, TapeLetter)
-		if VerifLetter(TapeLetter, Word) {
-			for i := 0; i <= 4; i++ {
-				if TapeLetter == (Word)[i] {
-					GameWord[i] = TapeLetter
-				}
-			}
-		} else {
-			(*Try)--
-		}
-	}
-}
-
 func ScanKeyboard(WordTry []rune) rune {
 	scanner := bufio.NewScanner(os.Stdin)
 	// Créer un nouveau scanner
-	fmt.Println("Tapes une lettre : ")
+	fmt.Print("Tapes une lettre : ")
 	scanner.Scan()
 	input := scanner.Text()
 	// Gère le texte écrit
@@ -170,25 +203,25 @@ func ClearScreen() {
 func GameOver(Word []rune, GameWord []rune, Try *int) bool {
 	if string(Word) == string(GameWord) {
 		ClearScreen()
-		fmt.Println("Vous avez gagné car le mot était", string(Word))
-		fmt.Println(`
-		██╗   ██╗ ██████╗ ██╗   ██╗    ██╗    ██╗██╗███╗   ██╗
+		fmt.Println("Vous avez gagné car le mot était", "\033[35m"+strings.ToTitle(string(Word))+"\033[0m")
+		fmt.Println("\033[32m", `
+	██╗   ██╗ ██████╗ ██╗   ██╗    ██╗    ██╗██╗███╗   ██╗
         ╚██╗ ██╔╝██╔═══██╗██║   ██║    ██║    ██║██║████╗  ██║
          ╚████╔╝ ██║   ██║██║   ██║    ██║ █╗ ██║██║██╔██╗ ██║
           ╚██╔╝  ██║   ██║██║   ██║    ██║███╗██║██║██║╚██╗██║
            ██║   ╚██████╔╝╚██████╔╝    ╚███╔███╔╝██║██║ ╚████║
-           ╚═╝    ╚═════╝  ╚═════╝      ╚══╝╚══╝ ╚═╝╚═╝  ╚═══╝`)
+           ╚═╝    ╚═════╝  ╚═════╝      ╚══╝╚══╝ ╚═╝╚═╝  ╚═══╝`, "\033[0m")
 		return true
 	} else if *Try == 0 {
 		ClearScreen()
-		fmt.Println("Vous avez perdu c'est GameOver car le mot était", string(Word), "c'est ciao kobuchaw")
-		fmt.Println(` 
+		fmt.Println("Vous avez perdu c'est GameOver car le mot était", "\033[35m"+strings.ToTitle(string(Word))+"\033[0m", "c'est ciao kobuchaw")
+		fmt.Println("\033[31m", `
 		 ██████╗  █████╗ ███╗   ███╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ 
 		██╔════╝ ██╔══██╗████╗ ████║██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗
 		██║  ███╗███████║██╔████╔██║█████╗      ██║   ██║██║   ██║█████╗  ██████╔╝
 		██║   ██║██╔══██║██║╚██╔╝██║██╔══╝      ██║   ██║╚██╗ ██╔╝██╔══╝  ██╔══██╗
 		╚██████╔╝██║  ██║██║ ╚═╝ ██║███████╗    ╚██████╔╝ ╚████╔╝ ███████╗██║  ██║
-		╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝     ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝`)
+		╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝     ╚═════╝   ╚═══╝  ╚══════╝╚═╝  ╚═╝`, "\033[0m")
 		return true
 	} else {
 		return false
